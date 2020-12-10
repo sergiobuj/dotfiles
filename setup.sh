@@ -5,20 +5,18 @@
 #
 
 cleanup () {
-  rm -rf ./aws
-  rm awscliv2.zip
+  rm -rf "$tmpdir"
 }
 trap cleanup EXIT
 
-python3 -m pip install --upgrade pip
-pip install flask
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip
-unzip awscliv2.zip
-sudo ./aws/install
+tmpdir=$(mktemp -d) || exit 1
 
-wget https://github.com/99designs/aws-vault/releases/download/v6.2.0/aws-vault-linux-amd64
-mv aws-vault-linux-amd64 /home/codespace/.local/bin/aws-vault
-chmod +x /home/codespace/.local/bin/aws-vault
+sudo apt update
+
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+
+sudo apt install -y terraform curl unzip
 
 git config --global alias.ci commit
 git config --global alias.co checkout
@@ -45,8 +43,13 @@ git config --global merge.tool opendiff
 git config --global pull.default current
 git config --global pull.ff only
 
-sudo apt update
+python3 -m pip install --upgrade pip
+pip install flask
 
-curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-sudo apt install terraform
+curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "$tmpdir/awscliv2.zip"
+unzip "$tmpdir/awscliv2.zip" -d "$tmpdir/"
+sudo "$tmpdir/aws/install"
+
+curl -fsSL "https://github.com/99designs/aws-vault/releases/download/v6.2.0/aws-vault-linux-amd64" -o "$tmpdir/aws-vault"
+sudo mv "$tmpdir/aws-vault" /usr/local/bin/aws-vault
+sudo chmod +x /usr/local/bin/aws-vault
