@@ -58,4 +58,7 @@ curl -fsSL "https://github.com/99designs/aws-vault/releases/download/v6.2.0/aws-
 sudo mv "$tmpdir/aws-vault" /usr/local/bin/aws-vault
 sudo chmod +x /usr/local/bin/aws-vault
 
+curl -fsSL "https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip" -o "$tmpdir/ngrok.zip"
+unzip "$tmpdir/ngrok.zip" -d "/usr/local/bin/"
+
 chsh --shell /bin/zsh root
